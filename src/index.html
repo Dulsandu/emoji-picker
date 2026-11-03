@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Emoji Picker</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="../data/emoji-data.js" defer></script>
+  <script src="../data/artwork.js" defer></script>
+  <script src="model.js" defer></script>
+  <script src="windowed-grid.js" defer></script>
+  <script src="renderer.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="titlebar">
+      <span class="brand"><img src="../assets/icon.png" width="19" height="19" alt="">Emoji Picker</span>
+      <div class="window-actions">
+        <button class="icon-button" id="settings-button" aria-label="Settings" title="Settings" data-icon="settings"></button>
+        <button class="icon-button" id="hide-button" aria-label="Hide picker" title="Hide picker" data-icon="close"></button>
+      </div>
+    </header>
+    <main id="picker-view">
+      <div class="search-wrap">
+        <span class="search-icon" data-icon="search"></span>
+        <input id="search" type="search" placeholder="Search emoji" aria-label="Search emoji" autocomplete="off" spellcheck="false" maxlength="100">
+        <button id="clear-search" class="icon-button" aria-label="Clear search" title="Clear search" data-icon="close" hidden></button>
+        <kbd id="search-hint">Ctrl F</kbd>
+      </div>
+      <nav id="categories" aria-label="Emoji categories"></nav>
+      <div class="section-heading"><h1 id="section-title">Recently used</h1><span id="result-count"></span></div>
+      <div id="emoji-scroll" tabindex="-1" aria-label="Emoji results">
+        <div id="welcome" hidden><span class="welcome-clock" data-icon="clock"></span><p>Your favorites start here<small>Pick an emoji. Find it here next time.</small></p></div>
+        <div id="empty" hidden><span data-icon="search"></span><strong>No emoji found</strong><p>Try a feeling, an object, or a shorter word.</p></div>
+        <div id="emoji-grid" role="group" aria-label="Emoji"></div>
+      </div>
+      <footer><span id="hover-name">Click an emoji to insert</span><button id="tone-button" class="tone-button" aria-label="Preferred skin tone" title="Preferred skin tone">✋</button></footer>
+      <div class="hintbar"><span>Right-click for skin tones</span><kbd id="shortcut-label">Ctrl + Shift + E</kbd></div>
+    </main>
+    <div id="banner" role="status" hidden></div>
+    <div id="toast" role="status" aria-live="polite" hidden><span data-icon="check"></span><span id="toast-text">Copied</span></div>
+    <dialog id="settings-dialog" aria-labelledby="settings-title">
+      <div class="dialog-title"><button id="back-button" class="icon-button" aria-label="Back to emojis" data-icon="back"></button><h2 id="settings-title">Settings</h2></div>
+      <div class="settings-content">
+        <label class="setting-label" for="theme">Appearance</label>
+        <select id="theme"><option value="system">Use system theme</option><option value="light">Light</option><option value="dark">Dark</option></select>
+        <label class="setting-label" for="shortcut-input">Global shortcut</label>
+        <div class="shortcut-row"><input id="shortcut-input" readonly aria-describedby="shortcut-help" placeholder="Press a shortcut"><button id="shortcut-save" class="text-button">Save</button></div>
+        <p class="help" id="shortcut-help">Click the field, then press Ctrl or Alt with a key.</p>
+        <p class="help">Select emojis to paste into your previous app. The picker stays open until you resume typing, click outside, use the shortcut, or click ×.</p>
+        <label class="switch-row"><span>Launch at Windows startup<small id="startup-help">Start quietly in the system tray</small></span><input id="startup" type="checkbox" role="switch"></label>
+        <span class="setting-label">Preferred skin tone</span>
+        <div id="tone-options" class="tone-options" role="group" aria-label="Preferred skin tone"></div>
+        <p class="help">Right-click an emoji for all its available variants.</p>
+        <p id="settings-status" role="status" aria-live="polite"></p>
+        <div class="about"><img src="../assets/icon.png" width="28" height="28" alt=""><p>Emoji Picker <span id="version">v1.2 P2</span><small>Offline. Private. Just emoji.</small></p><span id="data-version"></span></div>
+        <p class="ownership">TechKey <span aria-hidden="true">•</span> Developed by Cryptic Sheep</p>
+        <p class="help artwork-credit">Emoji artwork: Twemoji 17.0.3 by Twitter, Inc. and other contributors. CC BY 4.0. Converted to local WebP images. Full attribution and license are included with this app.</p>
+      </div>
+    </dialog>
+    <dialog id="variants-dialog" aria-labelledby="variants-title">
+      <div class="variant-title"><h2 id="variants-title">Choose a skin tone</h2><button id="close-variants" class="icon-button" aria-label="Close variants" data-icon="close"></button></div>
+      <div id="variants-grid"></div>
+    </dialog>
+  </div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
+if (process.platform !== 'win32') throw new Error('The Windows bridge must be compiled on Windows.');
+const compiler = path.join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework64', 'v4.0.30319', 'csc.exe');
+if (!fs.existsSync(compiler)) throw new Error('Windows .NET Framework 4.x C# compiler was not found.');
+fs.mkdirSync('native/bin', { recursive: true });
+execFileSync(compiler, ['/nologo', '/optimize+', '/platform:x64', '/target:exe', '/out:' + path.resolve('native/bin/WindowsBridge.exe'), path.resolve('native/WindowsBridge.cs')], { stdio: 'inherit', windowsHide: true });
+console.log('Built WindowsBridge.exe using the Windows .NET Framework; no runtime download needed.');

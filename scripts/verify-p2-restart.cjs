@@ -1,0 +1,15 @@
+const fs=require('fs'),path=require('path'),crypto=require('crypto'),cp=require('child_process');
+const root=process.cwd(),sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+const result={checkedAt:new Date().toISOString(),checkpoints:[],releases:[],syntax:[],json:[],notes:[]};
+for(const name of ['v1.2 P1 - Start','v1.2 P1 - Complete','v1.2 P2 - Start','v1.2 P2 - Complete']){const dir=path.join(root,'backups',name),entries=JSON.parse(fs.readFileSync(path.join(dir,'manifest.json')));const bad=[];for(const e of entries){const f=path.join(dir,e.path);if(!fs.existsSync(f)||fs.statSync(f).size!==e.bytes||sha(f)!==e.sha256.toLowerCase())bad.push(e.path);}result.checkpoints.push({name,files:entries.length,mismatches:bad});}
+for(const rel of ['v1.1.0','v1.2-p1','v1.2-p2/public']){const dir=path.join(root,'dist',rel),m=JSON.parse(fs.readFileSync(path.join(dir,'release-manifest.json')));result.releases.push({release:rel,artifacts:(m.artifacts||m).map(e=>({file:e.file,match:fs.statSync(path.join(dir,e.file)).size===e.bytes&&sha(path.join(dir,e.file))===e.sha256.toLowerCase(),sha256:sha(path.join(dir,e.file))}))});}
+function walk(d){return fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);}
+for(const f of ['main.js','preload.js',...['src','scripts','tests','native'].flatMap(walk)].filter(f=>/\.(js|cjs)$/.test(f))){cp.execFileSync(process.execPath,['--check',f]);result.syntax.push(f.replace(root+path.sep,''));}
+for(const f of ['package.json','package-lock.json',...walk('data').filter(f=>f.endsWith('.json')),...walk('evidence/v1.2-p2').filter(f=>f.endsWith('.json'))]){JSON.parse(fs.readFileSync(f));result.json.push(f);}
+const pkg=require(path.join(root,'package.json')),lock=require(path.join(root,'package-lock.json'));if(pkg.version!==lock.version||pkg.version!==lock.packages[''].version)throw Error('Lockfile version mismatch');
+const csharp=fs.readFileSync('native/WindowsBridge.cs','utf8');if(!csharp.includes('targetFocusRestored = true')||!csharp.includes('if (!targetFocusRestored)'))throw Error('Settings fix missing');
+for(const f of ['native/WindowsBridge.cs','native/bin/WindowsBridge.exe','dist/v1.2-p2/build/win-unpacked/resources/native/WindowsBridge.exe']){if(fs.statSync(f).size===0)throw Error('Empty native file');result.notes.push({file:f,sha256:sha(f)});}
+if(sha('native/bin/WindowsBridge.exe')!==sha('dist/v1.2-p2/build/win-unpacked/resources/native/WindowsBridge.exe'))throw Error('Packaged helper mismatch');
+result.inspectFocus='Temporary inspect-focus.cjs diagnostic was intentionally deleted before final build; working focus fix remains in WindowsBridge.cs.';
+result.sourceVsPriorCompletion=['main.js','preload.js','native/WindowsBridge.cs','native/bin/WindowsBridge.exe'].map(f=>({file:f,changed:sha(f)!==sha(path.join('backups/v1.2 P2 - Complete/source',f))}));
+fs.writeFileSync('evidence/v1.2-p2/post-restart-integrity.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

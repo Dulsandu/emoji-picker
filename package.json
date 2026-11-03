@@ -1,0 +1,111 @@
+{
+  "name": "emoji-picker",
+  "version": "1.2.0-p2",
+  "description": "A fast, private, offline emoji picker for Windows 11",
+  "main": "main.js",
+  "scripts": {
+    "data": "node scripts/build-data.cjs",
+    "icons": "node scripts/build-icons.cjs",
+    "native": "node scripts/build-native.cjs",
+    "prestart": "npm run native",
+    "start": "electron .",
+    "test": "node --test tests/*.test.cjs",
+    "test:ui": "playwright test",
+    "test:native": "node scripts/test-native.cjs",
+    "build": "npm run native && npm run data && npm run artwork && npm run icons && electron-builder --win nsis portable --x64",
+    "build:dir": "npm run native && electron-builder --win --x64 --dir",
+    "artwork": "node scripts/build-artwork.cjs"
+  },
+  "keywords": [],
+  "author": {
+    "name": "TechKey"
+  },
+  "contributors": [
+    {
+      "name": "Cryptic Sheep",
+      "role": "Developer"
+    }
+  ],
+  "copyright": "Copyright © 2026 TechKey",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "emojibase-data": "17.0.0",
+    "sharp": "0.35.5"
+  },
+  "build": {
+    "appId": "com.techkey.emojipicker.p2",
+    "productName": "Emoji Picker P2",
+    "directories": {
+      "output": "dist/v1.2-p2/build",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "data/**/*",
+      "assets/icon.png",
+      "assets/tray.png",
+      "assets/icon.ico",
+      "licenses/**/*",
+      "LICENSE",
+      "assets/emoji/**/*",
+      "!node_modules/koffi/cnoke.cjs",
+      "!node_modules/koffi/doc/**/*",
+      "!node_modules/koffi/lib/**/*",
+      "!node_modules/koffi/vendor/**/*",
+      "!node_modules/koffi/indirect.cjs",
+      "!node_modules/koffi/indirect.js",
+      "!node_modules/koffi/index.js",
+      "!node_modules/koffi/src/koffi/CMakeLists.txt",
+      "!node_modules/koffi/src/koffi/index.js",
+      "!node_modules/koffi/src/koffi/indirect.cjs",
+      "!node_modules/koffi/src/koffi/indirect.js",
+      "!node_modules/koffi/src/koffi/src/abi/**/*",
+      "!node_modules/koffi/src/koffi/src/*.{hh,inc,def,js}",
+      "!node_modules/koffi/src/koffi/src/trampolines.cjs",
+      "!node_modules/@koromix/koffi-win32-x64/win32_x64/koffi.lib"
+    ],
+    "extraResources": [
+      {
+        "from": "native/bin/WindowsBridge.exe",
+        "to": "native/WindowsBridge.exe"
+      }
+    ],
+    "asar": true,
+    "electronLanguages": [
+      "en-US",
+      "en-GB"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/icon.ico",
+      "signAndEditExecutable": true,
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "include": "assets/installer.nsh",
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "Emoji Picker P2 Setup ${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Emoji Picker P2 ${version} Portable.${ext}"
+    }
+  },
+  "dependencies": {
+    "koffi": "3.3.2"
+  }
+}
